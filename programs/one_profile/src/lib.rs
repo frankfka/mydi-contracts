@@ -139,6 +139,7 @@ on data_record
 #[instruction(metadata_uri: String, namespace: String, bump: u8)]
 pub struct UpdateDataRecord<'info> {
     #[account(
+    mut,
     seeds = [user.key.as_ref(), b"data".as_ref(), namespace.as_bytes()],
     bump = bump,
     )]

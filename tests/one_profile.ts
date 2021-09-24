@@ -87,7 +87,7 @@ describe('one_profile', () => {
   /*
   Basic record creation
    */
-  it('allows user to create a data and authority record', async () => {
+  it('allows user to create & update a data record and create an authority record', async () => {
     // Create an authority for the user
     const [authorityPda, authorityBump] = await getAuthorityProgramAddress(
       userOne.publicKey,
@@ -139,6 +139,29 @@ describe('one_profile', () => {
 
     assert.ok(fetchedDataRecord.metadataUri === 'test_metadata');
     assert.ok(fetchedDataRecord.authority.equals(userOne.publicKey));
+
+    // Now try updating the data record
+    await program.rpc.updateDataRecord(
+      'test_metadata_updated',
+      namespaceOne,
+      dataBump,
+      {
+        accounts: {
+          dataRecord: dataPda,
+          user: userOne.publicKey,
+          authority: userOne.publicKey,
+          authorityRecord: authorityPda,
+          systemProgram: web3.SystemProgram.programId,
+        },
+        signers: [userOne],
+      }
+    );
+
+    const fetchedDataRecordUpdated = await program.account.userDataRecord.fetch(
+      dataPda
+    );
+
+    assert.ok(fetchedDataRecordUpdated.metadataUri === 'test_metadata_updated');
   });
 
   /*
